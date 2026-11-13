@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>פאדלז׳יט — PadelZit</title>
-<meta name="description" content="ניהול טורניר פאדל אמריקנו ומקסיקנו: ניקוד חי, דירוג, פודיום ושיתוף בוואטסאפ. 4–8 שחקנים, חינם, ללא הרשמה, בעברית.">
+<meta name="description" content="ניהול טורניר פאדל אמריקנו ומקסיקנו: ניקוד חי, דירוג, פודיום ושיתוף בוואטסאפ. 4–12 שחקנים, עד שני מגרשים, חינם, ללא הרשמה, בעברית.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PadelZit — פאדלז׳יט">
 <meta property="og:title" content="פאדלז׳יט — ניהול טורניר פאדל אמריקנו ומקסיקנו">
-<meta property="og:description" content="ניקוד חי, דירוג ופודיום — כולם רואים את התוצאות בשידור חי. 4–8 שחקנים, חינם, ללא הרשמה.">
+<meta property="og:description" content="ניקוד חי, דירוג ופודיום — כולם רואים את התוצאות בשידור חי. 4–12 שחקנים, חינם, ללא הרשמה.">
 <meta property="og:url" content="https://padel.azma.app/">
 <meta property="og:image" content="https://padel.azma.app/og.png">
 <meta property="og:image:width" content="1200">
@@ -415,7 +415,7 @@
   .history-item .game-no { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
   .history-item .result { flex: 1; min-width: 120px; overflow-wrap: anywhere; }
   .history-item .winner { color: var(--green); font-weight: 700; }
-  .history-score { font-weight: 800; white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
+  .history-score { font-weight: 800; white-space: nowrap; unicode-bidi: isolate; }
   .history-target { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
   .icon-btn {
     width: 44px;
@@ -582,6 +582,9 @@
     text-align: center;
   }
   #toast.show { opacity: 1; }
+  #toast.has-action { pointer-events: auto; display: flex; align-items: center; gap: 12px; }
+  #toast .toast-action { width: auto; min-height: 36px; margin: 0; padding: 4px 14px; border-radius: 999px;
+    border: 1px solid #7dd3fc; background: transparent; color: #e0f2fe; font-weight: 800; font-size: 0.9rem; }
 
   #update-banner {
     position: fixed;
@@ -781,13 +784,13 @@
       <div class="score-row">
         <div class="stepper">
           <button type="button" class="step" onclick="stepScore('A',1)" aria-label="+1">+</button>
-          <input type="number" id="scoreA" min="0" inputmode="numeric" placeholder="0" oninput="autoFill('A')">
+          <input type="number" id="scoreA" min="0" inputmode="numeric" enterkeyhint="done" placeholder="–" oninput="autoFill('A')">
           <button type="button" class="step" onclick="stepScore('A',-1)" aria-label="-1">−</button>
         </div>
         <div class="dash">—</div>
         <div class="stepper">
           <button type="button" class="step" onclick="stepScore('B',1)" aria-label="+1">+</button>
-          <input type="number" id="scoreB" min="0" inputmode="numeric" placeholder="0" oninput="autoFill('B')">
+          <input type="number" id="scoreB" min="0" inputmode="numeric" enterkeyhint="done" placeholder="–" oninput="autoFill('B')">
           <button type="button" class="step" onclick="stepScore('B',-1)" aria-label="-1">−</button>
         </div>
       </div>
@@ -801,13 +804,13 @@
         <div class="score-row">
           <div class="stepper">
             <button type="button" class="step" onclick="stepScore('A2',1)" aria-label="+1">+</button>
-            <input type="number" id="scoreA2" min="0" inputmode="numeric" placeholder="0" oninput="autoFill('A2')">
+            <input type="number" id="scoreA2" min="0" inputmode="numeric" enterkeyhint="done" placeholder="–" oninput="autoFill('A2')">
             <button type="button" class="step" onclick="stepScore('A2',-1)" aria-label="-1">−</button>
           </div>
           <div class="dash">—</div>
           <div class="stepper">
             <button type="button" class="step" onclick="stepScore('B2',1)" aria-label="+1">+</button>
-            <input type="number" id="scoreB2" min="0" inputmode="numeric" placeholder="0" oninput="autoFill('B2')">
+            <input type="number" id="scoreB2" min="0" inputmode="numeric" enterkeyhint="done" placeholder="–" oninput="autoFill('B2')">
             <button type="button" class="step" onclick="stepScore('B2',-1)" aria-label="-1">−</button>
           </div>
         </div>
@@ -1073,7 +1076,9 @@ const STR = {
     cloudErrEmail: 'כתובת האימייל לא תקינה.',
     cloudErrConfirm: 'נשלח מייל אישור לכתובת שלך — אשרו אותו ואז התחברו.',
     cloudErrExists: 'החשבון כבר קיים — נסו להתחבר.',
-    cloudErrNet: 'אין חיבור לשרת הענן. (בגרסה שבתוך claude.ai הענן חסום — השתמשו בקישור הציבורי או באפליקציה)',
+    cloudErrNet: 'אין חיבור לשרת הענן. בדקו את החיבור לאינטרנט ונסו שוב.',
+    undo: 'בטל',
+    undone: 'השמירה בוטלה',
     cloudErrTable: 'שרת הענן עדיין לא הוגדר — צריך להריץ את סקריפט ההקמה (ראו הוראות).',
     cloudSignupOk: 'החשבון נוצר ✓',
     backupTitle: '💾 גיבוי והעברה בין מכשירים',
@@ -1276,7 +1281,9 @@ const STR = {
     cloudErrEmail: 'Invalid email address.',
     cloudErrConfirm: 'A confirmation email was sent — confirm it, then sign in.',
     cloudErrExists: 'Account already exists — try signing in.',
-    cloudErrNet: 'Cannot reach the cloud server. (Inside claude.ai the cloud is blocked — use the public link or the app)',
+    cloudErrNet: 'Cannot reach the cloud server. Check your connection and try again.',
+    undo: 'Undo',
+    undone: 'Save undone',
     cloudErrTable: 'The cloud server is not set up yet — run the setup script (see instructions).',
     cloudSignupOk: 'Account created ✓',
     backupTitle: '💾 Backup & transfer between devices',
@@ -1581,6 +1588,11 @@ function loadDb() {
         if (Number.isInteger(parsed.lastTarget)) db.lastTarget = parsed.lastTarget;
         if (parsed.lastFormat === 'mexicano' || parsed.lastFormat === 'americano') db.lastFormat = parsed.lastFormat;
         if (Array.isArray(parsed.deletedIds)) db.deletedIds = parsed.deletedIds.filter(x => typeof x === 'string');
+        // Last version of each tournament known to match the cloud (id → stamp).
+        if (parsed.syncStamps && typeof parsed.syncStamps === 'object') {
+          db.syncStamps = {};
+          Object.keys(parsed.syncStamps).forEach(k => { if (Number.isFinite(parsed.syncStamps[k])) db.syncStamps[k] = parsed.syncStamps[k]; });
+        }
         // Which account these local tournaments belong to (null = guest data, not yet claimed).
         if (typeof parsed.ownerId === 'string') db.ownerId = parsed.ownerId;
         db.roster = sanitizeRoster(parsed.roster);
@@ -1664,6 +1676,33 @@ function shuffledPairingOrder(avoidFirst) {
     order = shuffleArr([0, 1, 2]);
   } while (avoidFirst !== undefined && order[0] === avoidFirst);
   return order;
+}
+
+// Which of the 3 possible 4-player pairings a saved game used (by who partnered player 0).
+function pairingIndexOf(game) {
+  const team0 = game.teamA.includes(0) ? game.teamA : game.teamB;
+  const mate = team0.find(i => i !== 0);
+  return mate === 1 ? 0 : mate === 2 ? 1 : 2;
+}
+
+// With exactly 4 players, rebuild the rotation from the games actually played
+// (used after a game is deleted): the current cycle keeps the pairings already
+// played in it and offers only the ones still missing; a fresh cycle never
+// starts with the pairing that was just played.
+function rebuildPairingCycle(tour) {
+  const k = tour.history.length % 3;
+  if (k === 0) {
+    const last = tour.history.length ? pairingIndexOf(tour.history[tour.history.length - 1]) : undefined;
+    tour.pairingOrder = shuffledPairingOrder(last);
+    tour.pairingCursor = 0;
+    return;
+  }
+  const played = [];
+  tour.history.slice(-k).forEach(g => { const pi = pairingIndexOf(g); if (!played.includes(pi)) played.push(pi); });
+  const missing = shuffleArr([0, 1, 2].filter(pi => !played.includes(pi)));
+  tour.pairingOrder = played.concat(missing);
+  tour.pairingCursor = played.length;
+  if (tour.pairingCursor > 2) { tour.pairingOrder = shuffledPairingOrder(played[played.length - 1]); tour.pairingCursor = 0; }
 }
 
 function partnerCount(tour, x, y) {
@@ -1981,7 +2020,7 @@ function gotoSetup() {
   setupFormat = db.lastFormat === 'mexicano' ? 'mexicano' : 'americano';
   setupMe = null;
   const last = Array.isArray(db.lastPlayers) ? db.lastPlayers : [];
-  setupCount = (last.length >= 4 && last.length <= 8) ? last.length : 4;
+  setupCount = (last.length >= 4 && last.length <= 12) ? last.length : 4;
   pendingNames = last.slice();
   document.getElementById('target').value = db.lastTarget || 32;
   document.getElementById('setup-error').textContent = '';
@@ -2239,9 +2278,13 @@ function changeTarget() {
   tour.target = v;
   touch(tour);
   saveDb();
-  const a = document.getElementById('scoreA');
-  const b = document.getElementById('scoreB');
-  if (a.value !== '') autoFillPair(a, b, v);
+  // Re-balance every court that already has a typed score to the new total.
+  ['', '2'].forEach(suffix => {
+    const a = document.getElementById('scoreA' + suffix);
+    const b = document.getElementById('scoreB' + suffix);
+    if (a && b && a.value !== '') autoFillPair(a, b, v);
+    else if (a && b && b.value !== '') autoFillPair(b, a, v);
+  });
   render();
 }
 
@@ -2313,6 +2356,19 @@ function rankOrder(tour) {
   );
 }
 
+// Competition ranking (1,1,3): players tied on points, wins and +/- share a
+// rank — the same rule the standings table uses.
+function rankNumbers(tour, order) {
+  const out = [];
+  let prevKey = null, prevRank = 0;
+  order.forEach((i, idx) => {
+    const key = tour.points[i] + '/' + tour.gamesWon[i] + '/' + diffOf(tour, i);
+    const r = key === prevKey ? prevRank : idx + 1;
+    out[i] = r; prevKey = key; prevRank = r;
+  });
+  return out;
+}
+
 let lastSaveAt = 0;
 
 function saveGame() {
@@ -2337,6 +2393,7 @@ function saveGame() {
   }
   err.textContent = '';
 
+  const before = JSON.stringify(tour);   // snapshot for "Undo"
   const [teamA, teamB] = currentPairing(tour);
   const game = { teamA: [...teamA], teamB: [...teamB], scoreA, scoreB, target: tour.target };
   applyGame(tour, game);
@@ -2356,7 +2413,8 @@ function saveGame() {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   render();
-  showToast(t('savedToast', tour.history.length));
+  const savedId = tour.id, savedLen = tour.history.length;
+  showToast(t('savedToast', tour.history.length), t('undo'), () => undoSave(savedId, savedLen, before));
   announce(t('savedToast', tour.history.length));
   haptic(15);
   const box = document.getElementById('teams-box');
@@ -2367,6 +2425,22 @@ function saveGame() {
   btn.classList.remove('save-ok');
   void btn.offsetWidth;
   btn.classList.add('save-ok');
+}
+
+// Undo the save that was just made (only while nothing else changed since):
+// restores the tournament exactly as it was, including the announced match.
+function undoSave(id, savedLen, snapshot) {
+  const at = db.tournaments.findIndex(x => x.id === id);
+  if (at < 0 || db.tournaments[at].history.length !== savedLen) return;
+  const restored = sanitizeTournament(JSON.parse(snapshot));
+  if (!restored) return;
+  restored.id = id;
+  db.tournaments[at] = restored;
+  touch(restored);
+  saveDb();
+  render();
+  showToast(t('undone'));
+  haptic(10);
 }
 
 /* ---------- history editing ---------- */
@@ -2423,7 +2497,7 @@ function deleteGame(index) {
   pendingDeleteGame = -1;
   tour.history.splice(index, 1);
   recompute(tour);
-  if (tour.players.length === 4) tour.pairingCursor = tour.history.length % 3;
+  if (tour.players.length === 4) rebuildPairingCycle(tour);
   if (!tour.finished) assignNextRound(tour);
   editingIndex = -1;
   touch(tour);
@@ -2559,9 +2633,10 @@ function shareText(tour) {
     dirMark + new Date(tour.createdAt).toLocaleDateString(STR[lang].locale),
     '',
   ];
-  order.forEach((i, idx) => {
-    const name = idx === 0 ? '*' + tour.players[i] + '*' : tour.players[i];
-    lines.push(dirMark + (idx + 1) + '. ' + name + ' — ' +
+  const rk = rankNumbers(tour, order);
+  order.forEach(i => {
+    const name = rk[i] === 1 ? '*' + tour.players[i] + '*' : tour.players[i];
+    lines.push(dirMark + rk[i] + '. ' + name + ' — ' +
       tour.points[i] + ' ' + t('sharePts') + ' · ' + tour.gamesWon[i] + ' ' + t('shareWins'));
   });
   lines.push('');
@@ -2569,7 +2644,7 @@ function shareText(tour) {
   // Always close with a link: the live link when shared, the app otherwise —
   // every shared table doubles as an invitation.
   lines.push('');
-  lines.push(tour.isPublic ? publicUrl(tour) : appUrl());
+  lines.push(tour.isPublic ? publicUrl(tour) : appUrl() + '?ref=wa');
   return lines.join('\n');
 }
 
@@ -2663,6 +2738,7 @@ function reconcileOwner() {
     db.tournaments = keep;
     if (dropped) {
       db.deletedIds = [];
+    db.syncStamps = {};
       if (!keep.some(tr => tr.id === activeId)) { activeId = null; view = 'home'; }
     }
     db.ownerId = uid;
@@ -2673,6 +2749,7 @@ function reconcileOwner() {
     // A different account signed in on this device — start clean and pull theirs.
     db.tournaments = [];
     db.deletedIds = [];
+    db.syncStamps = {};
     db.lastPlayers = null;
     db.roster = [];
     db.profile = null;
@@ -2761,6 +2838,7 @@ function cloudLogout() {
   // It stays safe in the cloud and returns on the next sign-in.
   db.tournaments = [];
   db.deletedIds = [];
+  db.syncStamps = {};
   db.lastPlayers = null;
   db.ownerId = null;
   db.roster = [];
@@ -2944,10 +3022,14 @@ function reconcileClaims() {
   db.tournaments.forEach(tour => {
     if (!tour.links) return;
     tour.claims = tour.claims || {};
+    let tourChanged = false;
     Object.keys(tour.links).forEach(uid => {
       const idx = tour.links[uid];
-      if (isFriendUid(uid) && tour.claims[uid] !== idx) { tour.claims[uid] = idx; changed = true; }
+      if (isFriendUid(uid) && tour.claims[uid] !== idx) { tour.claims[uid] = idx; tourChanged = true; }
     });
+    // A new credit is a real change: stamp it so the next sync uploads it
+    // (the server reads claims from the stored row).
+    if (tourChanged) { touch(tour); changed = true; }
   });
   if (changed) { pulling = true; try { saveDb(); } finally { pulling = false; } }
   return changed;
@@ -3175,13 +3257,35 @@ async function cloudPull() {
       const at = db.tournaments.findIndex(x => x.id === r.id);
       if (at < 0) { db.tournaments.push(remote); changed = true; }
       else if (stampOf(remote) > stampOf(db.tournaments[at])) { db.tournaments[at] = remote; changed = true; }
+      // In sync unless the local copy is newer (then it's still waiting to push).
+      const local = db.tournaments.find(x => x.id === r.id);
+      if (stampOf(local) <= stampOf(remote)) syncStamps()[r.id] = stampOf(remote);
     });
-    if (changed) {
-      db.tournaments.sort((a, b) => b.createdAt - a.createdAt);
-      saveDb();
-      render();
-    }
+    // Tournaments deleted on another device leave a tombstone: drop our copy
+    // instead of showing (or re-uploading) it. Older backends without the
+    // tombstone table simply skip this step.
+    try {
+      const tres = await sbFetch('/rest/v1/tournament_tombstones?select=id');
+      if (tres.ok) {
+        const gone = new Set((await tres.json()).map(x => x.id));
+        const before = db.tournaments.length;
+        db.tournaments = db.tournaments.filter(tr => tr.liveGuest || !gone.has(tr.id));
+        if (db.tournaments.length !== before) {
+          changed = true;
+          if (activeId && !db.tournaments.some(tr => tr.id === activeId)) { activeId = null; view = 'home'; }
+        }
+        gone.forEach(id => { delete syncStamps()[id]; });
+      }
+    } catch (e) { /* offline or not installed — fine */ }
+    if (changed) db.tournaments.sort((a, b) => b.createdAt - a.createdAt);
+    saveDb();
+    if (changed) render();
   } finally { pulling = false; }
+}
+
+function syncStamps() {
+  if (!db.syncStamps || typeof db.syncStamps !== 'object') db.syncStamps = {};
+  return db.syncStamps;
 }
 
 async function cloudPush() {
@@ -3190,7 +3294,11 @@ async function cloudPush() {
     if (res.ok || res.status === 404) db.deletedIds = db.deletedIds.filter(x => x !== id);
     else throw Object.assign(new Error('delete'), { status: res.status });
   }
-  const ownRows = db.tournaments.filter(tr => !tr.liveGuest);
+  // Upload only tournaments changed since they last matched the cloud. A
+  // device holding an old, untouched copy therefore never pushes it back over
+  // newer work from another phone (the server also refuses stale versions).
+  const stamps = syncStamps();
+  const ownRows = db.tournaments.filter(tr => !tr.liveGuest && stamps[tr.id] !== stampOf(tr));
   if (ownRows.length > 0) {
     const rows = ownRows.map(tr => ({ id: tr.id, data: tr }));
     const res = await sbFetch('/rest/v1/tournaments?on_conflict=id', {
@@ -3199,6 +3307,7 @@ async function cloudPush() {
       body: JSON.stringify(rows),
     });
     if (!res.ok) throw Object.assign(new Error('push'), { status: res.status });
+    ownRows.forEach(tr => { stamps[tr.id] = stampOf(tr); });
   }
   pulling = true;
   try { saveDb(); } finally { pulling = false; }
@@ -3425,6 +3534,7 @@ async function makeTournamentPublic(tour) {
   });
   if (!res.ok) throw new Error('patch ' + res.status);
   tour.isPublic = true;
+  touch(tour);              // so other devices learn the share state too
   saveDb();
 }
 
@@ -3452,6 +3562,7 @@ async function stopSharing() {
       if (!res.ok) throw new Error('patch ' + res.status);
     }
     tour.isPublic = false;
+    touch(tour);
     saveDb();
     render();
     showToast(t('shareStopped'));
@@ -3523,12 +3634,25 @@ function copyPublicLink() {
 
 /* ---------- toast ---------- */
 
-function showToast(msg) {
+function showToast(msg, actionLabel, onAction) {
   const el = document.getElementById('toast');
   el.textContent = msg;
+  el.classList.toggle('has-action', !!actionLabel);
+  if (actionLabel) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'toast-action';
+    b.textContent = actionLabel;
+    b.addEventListener('click', () => {
+      clearTimeout(toastTimer);
+      el.classList.remove('show', 'has-action');
+      onAction();
+    });
+    el.appendChild(b);
+  }
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => el.classList.remove('show', 'has-action'), actionLabel ? 7000 : 2200);
 }
 
 /* ---------- rendering ---------- */
@@ -3596,8 +3720,12 @@ function renderHistory(tour) {
   }
   // Preserve values typed into an open edit row across re-renders
   // (language toggle, target change) instead of silently discarding them.
-  const stashA = document.getElementById('edit-a') ? document.getElementById('edit-a').value : null;
-  const stashB = document.getElementById('edit-b') ? document.getElementById('edit-b').value : null;
+  // Only reuse them for the SAME game: opening ✎ on another game must start
+  // from that game's own scores, never inherit the previous row's input.
+  const openA = document.getElementById('edit-a');
+  const stashIdx = openA ? Number(openA.getAttribute('data-idx')) : -1;
+  const stashA = openA && stashIdx === editingIndex ? openA.value : null;
+  const stashB = openA && stashIdx === editingIndex && document.getElementById('edit-b') ? document.getElementById('edit-b').value : null;
   list.innerHTML = '';
   [...tour.history].reverse().forEach((g, revIdx) => {
     const index = tour.history.length - 1 - revIdx;
@@ -3619,7 +3747,7 @@ function renderHistory(tour) {
       const valB = stashB !== null ? stashB : g.scoreB;
       html +=
         '<div class="edit-row">' +
-          '<input type="number" id="edit-a" min="0" inputmode="numeric" aria-label="' + escapeHtml(t('sharePts') + ': ' + teamLabelInline(tour, g.teamA)) + '" value="' + escapeHtml(String(valA)) + '" oninput="editAutoFill(\'A\')">' +
+          '<input type="number" id="edit-a" data-idx="' + index + '" min="0" inputmode="numeric" aria-label="' + escapeHtml(t('sharePts') + ': ' + teamLabelInline(tour, g.teamA)) + '" value="' + escapeHtml(String(valA)) + '" oninput="editAutoFill(\'A\')">' +
           '<span class="dash">—</span>' +
           '<input type="number" id="edit-b" min="0" inputmode="numeric" aria-label="' + escapeHtml(t('sharePts') + ': ' + teamLabelInline(tour, g.teamB)) + '" value="' + escapeHtml(String(valB)) + '" oninput="editAutoFill(\'B\')">' +
           '<button type="button" class="icon-btn ok" onclick="saveEdit(' + index + ')" aria-label="' + escapeHtml(t('editSave')) + '">✔</button>' +
@@ -3628,7 +3756,9 @@ function renderHistory(tour) {
         '<div class="edit-error" id="edit-error" role="alert"></div>';
     } else {
       html +=
-        '<span class="history-score">' + g.scoreA + '–' + g.scoreB + '</span>' +
+        // Each score sits on its own team's side in both directions (RTL: team A
+        // and its score on the right), so the result can't be read backwards.
+        '<span class="history-score"><bdi>' + g.scoreA + '</bdi>–<bdi>' + g.scoreB + '</bdi></span>' +
         (gTarget !== tour.target ? '<span class="history-target"><bdi dir="ltr">🎯 ' + gTarget + '</bdi></span>' : '') +
         '<button type="button" class="icon-btn" onclick="startEdit(' + index + ')" title="' + escapeHtml(t('editTitle')) + '" aria-label="' + escapeHtml(t('editTitle')) + '">✎</button>' +
         '<button type="button" class="icon-btn danger' + (pendingDeleteGame === index ? ' confirm' : '') + '" onclick="deleteGame(' + index + ')" title="' +
@@ -3643,7 +3773,8 @@ function renderHistory(tour) {
 function renderGame(tour) {
   const n = tour.history.length;
   const nPlayers = tour.players.length;
-  let label = t('game') + ' ' + (tour.next2 ? (n + 1) + '–' + (n + 2) : (n + 1));
+  // The range is isolated left-to-right so Hebrew shows "1–2", not "2–1".
+  let label = t('game') + ' ' + (tour.next2 ? '\u2066' + (n + 1) + '–' + (n + 2) + '\u2069' : (n + 1));
   if (tour.format === 'mexicano') {
     label += ' · ' + t('fmtLabelMex');
   } else if (nPlayers === 4) {
@@ -3703,8 +3834,13 @@ function renderGame(tour) {
 
 function renderPodium(tour) {
   const order = rankOrder(tour);
+  const rk = rankNumbers(tour, order);
   const scoreLine = i => tour.points[i] + ' ' + t('sharePts') + ' · ' + tour.gamesWon[i] + ' ' + t('shareWins');
   const champ = order[0];
+  // Tied players get the same medal (two golds, no silver — like the table).
+  const MEDALS = ['🥇', '🥈', '🥉'];
+  ['.podium-first .medal', '.podium-rest .p:nth-child(1) .medal', '.podium-rest .p:nth-child(2) .medal']
+    .forEach((sel, k) => { const el = document.querySelector(sel); if (el) el.textContent = MEDALS[rk[order[k]] - 1] || ''; });
   document.getElementById('pod-1-name').textContent = tour.players[champ];
   const p1 = document.getElementById('pod-1-score');
   p1.innerHTML = '<span id="pod-1-pts">0</span> ' + escapeHtml(t('sharePts')) + ' · ' +
@@ -3800,17 +3936,20 @@ function renderHome() {
   renderHomeFriends();
 
   // All-time leaderboard across every tournament, keyed by player name.
-  const agg = {};
+  // Prototype-free map keyed case-insensitively ("Dan" and "dan" are one
+  // player, matching the setup-time duplicate rule); a name like
+  // "constructor" or "__proto__" is just another key here.
+  const agg = Object.create(null);
   db.tournaments.forEach(tour => {
     tour.players.forEach((name, i) => {
-      const key = name.trim();
-      if (!agg[key]) agg[key] = { pts: 0, games: 0, won: 0, titles: 0 };
+      const key = name.trim().toLowerCase();
+      if (!agg[key]) agg[key] = { name: name.trim(), pts: 0, games: 0, won: 0, titles: 0 };
       agg[key].pts += tour.points[i];
       agg[key].games += tour.gamesPlayed[i];
       agg[key].won += tour.gamesWon[i];
     });
     if (tour.finished && tour.history.length > 0) {
-      const champ = tour.players[rankOrder(tour)[0]].trim();
+      const champ = tour.players[rankOrder(tour)[0]].trim().toLowerCase();
       agg[champ].titles++;
     }
   });
@@ -3827,7 +3966,7 @@ function renderHome() {
       const a = agg[name];
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td>' + escapeHtml(name) + '</td>' +
+        '<td>' + escapeHtml(a.name) + '</td>' +
         '<td class="num">' + (a.titles > 0 ? '🏆'.repeat(Math.min(a.titles, 3)) + (a.titles > 3 ? '×' + a.titles : '') : '—') + '</td>' +
         '<td class="num pts">' + a.pts + '</td>' +
         '<td class="num">' + a.games + '</td>' +
@@ -3981,7 +4120,68 @@ function render() {
   else if (view === 'podium') renderPodium(tour);
   else if (view === 'friends') renderFriends();
   updateFriendsBadge();
+  if (view !== lastRenderedView) onScreenChange(activeEl);
 }
+
+// A new screen starts at its top (not wherever the previous one was
+// scrolled to) and moves keyboard/screen-reader focus to its heading.
+let lastRenderedView = null;
+function onScreenChange(activeEl) {
+  const first = lastRenderedView === null;
+  lastRenderedView = view;
+  if (!first) {
+    window.scrollTo(0, 0);
+    const heading = activeEl.querySelector('h1, h2');
+    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+  }
+  syncNavHistory();
+  updateWakeLock();
+}
+
+// Android/browser Back: every screen other than home sits on one extra
+// history entry, so Back returns home instead of leaving the app (in the
+// Play Store app, leaving = closing it mid-tournament).
+let inAppEntry = false, ignoreNextPop = false;
+function syncNavHistory() {
+  try {
+    if (view !== 'home' && !inAppEntry) { history.pushState({ pz: 1 }, ''); inAppEntry = true; }
+    else if (view === 'home' && inAppEntry) { inAppEntry = false; ignoreNextPop = true; history.back(); }
+  } catch (e) { /* sandboxed frame — no history API */ }
+}
+window.addEventListener('popstate', () => {
+  if (ignoreNextPop) { ignoreNextPop = false; return; }
+  if (inAppEntry) { inAppEntry = false; if (view !== 'home') gotoHome(); }
+});
+
+// Keep the phone screen on while a tournament is being scored.
+let wakeLock = null;
+async function updateWakeLock() {
+  const want = view === 'game' && !document.hidden;
+  try {
+    if (want && !wakeLock && 'wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if (!want && wakeLock) {
+      await wakeLock.release();
+      wakeLock = null;
+    }
+  } catch (e) { wakeLock = null; }
+}
+document.addEventListener('visibilitychange', updateWakeLock);
+
+// Enter on a score field saves the game (the keyboard's "done" key).
+['scoreA', 'scoreB', 'scoreA2', 'scoreB2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const tour = current();
+    const filled = ['scoreA', 'scoreB'].concat(tour && tour.next2 ? ['scoreA2', 'scoreB2'] : [])
+      .every(x => document.getElementById(x).value !== '');
+    if (filled) saveGame();
+    else { const next = ['scoreA', 'scoreA2'].map(x => document.getElementById(x)).find(x => x && x.value === '' && x.offsetParent); if (next) next.focus(); }
+  });
+});
 
 document.getElementById('setup-form').addEventListener('submit', e => {
   e.preventDefault();
@@ -4117,6 +4317,18 @@ handleOAuthRedirect().then(loggedIn => {
   if (loggedIn) { reconcileOwner(); renderCloud(); render(); syncNow(true); resolvePendingInvite(); }
   else if (session) syncNow(true);
 });
+// Pick up changes made on other devices when the app returns to the
+// foreground or the connection comes back (and retry anything that failed
+// to upload while offline). Throttled so quick app switches stay cheap.
+let lastForegroundSync = Date.now();
+function foregroundSync(force) {
+  if (!session || document.hidden) return;
+  if (!force && Date.now() - lastForegroundSync < 20000) return;
+  lastForegroundSync = Date.now();
+  syncNow(true);
+}
+document.addEventListener('visibilitychange', () => foregroundSync(false));
+window.addEventListener('online', () => foregroundSync(true));
 </script>
 </body>
 </html>

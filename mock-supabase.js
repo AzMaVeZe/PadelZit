@@ -8,6 +8,9 @@ const codes = {};   // auth_code -> user_id  (PKCE)
 const profiles = {}; // user_id -> {user_id, email, name, nickname, roster, friend_token}
 const friendEdges = []; // {requester, addressee, status, created_at}
 const tourStats = {}; // "tid|uid" -> {tournament_id, player_uid, games_played, games_won, finished, is_champion, updated_at}
+const tombstones = {}; // tournament id -> owner uid (mirrors tournament_tombstones)
+const stampOf = d => (d && (d.updatedAt || d.createdAt)) || 0;
+function emailOf(uid) { const u = Object.values(users).find(x => x.id === uid); return u ? u.email : ''; }
 let counter = 0;
 
 function newToken() { return 'ft_' + (++counter) + '_' + Math.random().toString(36).slice(2); }
@@ -153,6 +156,12 @@ const server = http.createServer((req, res) => {
         const arr = Array.isArray(data) ? data : [data];
         arr.forEach(r => {
           const existing = rows[r.id];
+          // Mirrors the hardened DB: RLS refuses another user's row, a deleted
+          // id can't be re-inserted (tombstone), and an older copy never
+          // overwrites a newer one (tournaments_guard).
+          if (existing && existing.user_id !== uid) return;
+          if (!existing && tombstones[r.id]) return;
+          if (existing && stampOf(r.data) < stampOf(existing.data)) return;
           rows[r.id] = { id: r.id, user_id: uid, data: r.data, is_public: existing ? existing.is_public : false };
         });
         res.writeHead(201, CORS); res.end(); return;
@@ -164,9 +173,14 @@ const server = http.createServer((req, res) => {
         res.writeHead(204, CORS); res.end(); return;
       }
       if (req.method === 'DELETE') {
-        if (rows[id] && rows[id].user_id === uid) delete rows[id];
+        if (rows[id] && rows[id].user_id === uid) { delete rows[id]; tombstones[id] = uid; }
         res.writeHead(204, CORS); res.end(); return;
       }
+    }
+    if (path === '/rest/v1/tournament_tombstones' && req.method === 'GET') {
+      const uid = authedUser(req);
+      if (!uid) return json(res, 200, []);
+      return json(res, 200, Object.keys(tombstones).filter(id => tombstones[id] === uid).map(id => ({ id })));
     }
 
     // Player profiles: own-row read/write + exact-match directory lookup.
@@ -192,7 +206,8 @@ const server = http.createServer((req, res) => {
         // untouched on an existing row, not wiped.
         const existing = profiles[uid];
         profiles[uid] = {
-          user_id: uid, email: row.email,
+          // Email comes from the account (profiles_guard), never the client.
+          user_id: uid, email: emailOf(uid) || '',
           name: row.name || null, nickname: row.nickname || null, roster: row.roster || [],
           friend_token: (existing && existing.friend_token) || newToken(),
         };
@@ -362,7 +377,7 @@ const server = http.createServer((req, res) => {
     // debug endpoint for tests
     if (path === '/__state') return json(res, 200, {
       users: Object.keys(users),
-      rows: Object.values(rows).map(r => ({ id: r.id, user_id: r.user_id, is_public: !!r.is_public })),
+      rows: Object.values(rows).map(r => ({ id: r.id, user_id: r.user_id, is_public: !!r.is_public, games: (r.data && r.data.history || []).length })),
       friendEdges: friendEdges.slice(),
       tourStats: Object.values(tourStats),
     });

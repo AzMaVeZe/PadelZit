@@ -28,7 +28,7 @@ async function syncViaMenu(p) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+  const browser = await chromium.launch();
 
   const ctxA = await mkctx(browser); const pa = await ctxA.newPage();
   const ctxB = await mkctx(browser); const pb = await ctxB.newPage();
