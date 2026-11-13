@@ -2592,9 +2592,13 @@ function copyResults() {
 
 /* ---------- cloud account & sync (Supabase) ---------- */
 
+// The backend override exists only for the local test suite (mock Supabase).
+// It is honoured on localhost ONLY: on the real site a value planted in
+// localStorage must never be able to redirect logins/tokens to another server.
+const CLOUD_OVERRIDE_OK = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const CLOUD = {
-  url: store.getItem('padelzit-cloud-url') || 'https://axrugdszycwmadbdwolx.supabase.co',
-  key: store.getItem('padelzit-cloud-key') || 'sb_publishable_DJKbYBC-m4TcUbM2D1gSlQ_WQfJW-1m',
+  url: (CLOUD_OVERRIDE_OK && store.getItem('padelzit-cloud-url')) || 'https://axrugdszycwmadbdwolx.supabase.co',
+  key: (CLOUD_OVERRIDE_OK && store.getItem('padelzit-cloud-key')) || 'sb_publishable_DJKbYBC-m4TcUbM2D1gSlQ_WQfJW-1m',
 };
 const SESSION_KEY = 'padelzit-session';
 let session = null;          // {access_token, refresh_token, expires_at, user:{id,email}}
@@ -2783,8 +2787,9 @@ function showCloudError(msg) {
   if (b) b.textContent = msg;
 }
 
-// Start an OAuth login (Google/Facebook). Uses the PKCE flow so every provider
-// comes back the same way (?code=...), which we then exchange for a session.
+// Start an OAuth login (Google/Facebook). PKCE only: the provider comes back
+// with ?code=..., which is exchanged for a session together with the secret
+// verifier that only this device holds.
 async function doOAuth(provider) {
   const redirectTo = location.origin + location.pathname;
   let url = CLOUD.url + '/auth/v1/authorize?provider=' + encodeURIComponent(provider) +
@@ -2794,50 +2799,42 @@ async function doOAuth(provider) {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
     store.setItem(PKCE_KEY, verifier);
     url += '&code_challenge=' + encodeURIComponent(b64url(digest)) + '&code_challenge_method=s256';
-  } catch (e) { /* no crypto → fall back to implicit (hash) flow */ }
+  } catch (e) { showCloudError(t('oauthErr')); return; }
   location.href = url;
 }
 
-// On return from an OAuth provider the session arrives either as tokens in the
-// URL hash (implicit) or as ?code=... (PKCE, e.g. Google). Handle both, surface
+// On return from an OAuth provider: exchange ?code= for a session, surface
 // real errors, and clean the URL.
+//
+// SECURITY: tokens arriving directly in the URL (#access_token=..., the old
+// implicit flow) are deliberately ignored. Accepting them let any link sign a
+// visitor into an attacker's account (login CSRF), after which the visitor's
+// guest tournaments were adopted into that account. A code is only honoured
+// when this device started the login and still holds the matching verifier.
 async function handleOAuthRedirect() {
   const hp = new URLSearchParams((location.hash || '').replace(/^#/, ''));
   const qp = new URLSearchParams((location.search || '').replace(/^\?/, ''));
-  const get = k => hp.get(k) || qp.get(k);
-  if (!['access_token', 'code', 'error', 'error_description'].some(k => get(k))) return false;
+  const get = k => qp.get(k) || hp.get(k);
+  const hasTokens = hp.get('access_token') || hp.get('refresh_token') || qp.get('access_token');
+  if (!['code', 'error', 'error_description'].some(k => get(k)) && !hasTokens) return false;
 
   const clean = () => history.replaceState(null, '', location.pathname);
+  if (hasTokens && !get('code') && !get('error')) { clean(); return false; }
   const err = get('error') || get('error_code');
   if (err) {
     clean();
     const desc = get('error_description');
-    showCloudError(t('oauthErr') + (desc ? ' (' + decodeURIComponent(desc.replace(/\+/g, ' ')) + ')' : ''));
+    showCloudError(t('oauthErr') + (desc ? ' (' + desc.slice(0, 200) + ')' : ''));
     return false;
   }
 
-  const access_token = get('access_token');
-  const refresh_token = get('refresh_token');
   const code = get('code');
   clean();
   try {
-    if (access_token && refresh_token) {
-      const res = await fetch(CLOUD.url + '/auth/v1/user', {
-        headers: { apikey: CLOUD.key, Authorization: 'Bearer ' + access_token },
-      });
-      if (!res.ok) throw new Error('user');
-      const user = await res.json();
-      setSession({
-        access_token, refresh_token,
-        expires_at: Number(get('expires_at')) || undefined,
-        expires_in: Number(get('expires_in')) || undefined,
-        user: user,
-      });
-      return true;
-    }
     if (code) {
       const verifier = store.getItem(PKCE_KEY);
       store.removeItem(PKCE_KEY);
+      if (!verifier) return false;   // not a login this device started
       const res = await fetch(CLOUD.url + '/auth/v1/token?grant_type=pkce', {
         method: 'POST',
         headers: { apikey: CLOUD.key, 'Content-Type': 'application/json' },
@@ -3339,6 +3336,15 @@ async function deleteAccountAsk() {
   const btn = document.getElementById('menu-delete');
   btn.disabled = true;
   try {
+    // Tournaments shared live as a guest live in owner-less rows that only
+    // this device's write token controls — take them down first so "delete
+    // all my data" also removes every public link this device created.
+    await Promise.all(db.tournaments.filter(tr => tr.liveGuest).map(tr =>
+      fetch(CLOUD.url + '/rest/v1/rpc/stop_live', {
+        method: 'POST',
+        headers: { apikey: CLOUD.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tid: tr.id, token: liveToken() }),
+      }).catch(() => {})));
     const res = await sbFetch('/rest/v1/rpc/delete_account', { method: 'POST', body: '{}' });
     if (!res.ok) throw new Error('rpc ' + res.status);
     // Wipe everything locally and sign out.
@@ -4074,6 +4080,11 @@ if (PWA_HOST) {
           if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner(nw);
         });
       });
+      // An installed app can stay open for days: look for a new release
+      // whenever it comes back to the foreground.
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
     }).catch(() => {});
     // Reload to pick up new assets only after the user tapped Refresh
     // (not on the initial claim, which also fires controllerchange).
@@ -4105,12 +4116,6 @@ resolvePendingInvite();
 handleOAuthRedirect().then(loggedIn => {
   if (loggedIn) { reconcileOwner(); renderCloud(); render(); syncNow(true); resolvePendingInvite(); }
   else if (session) syncNow(true);
-});
-// Safety net: if OAuth tokens arrive without a full reload, process them too.
-window.addEventListener('hashchange', () => {
-  if ((location.hash || '').indexOf('access_token=') !== -1) {
-    handleOAuthRedirect().then(ok => { if (ok) { reconcileOwner(); renderCloud(); render(); syncNow(true); } });
-  }
 });
 </script>
 </body>
