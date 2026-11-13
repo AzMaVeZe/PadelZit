@@ -2,6 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://axrugdszycwmadbdwolx.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PadelZit — תוצאות טורניר</title>
 <meta name="description" content="צפו בתוצאות טורניר הפאדל בשידור חי — דירוג, נקודות ופודיום. PadelZit.">
@@ -62,6 +64,7 @@
   .pts{font-weight:800;color:var(--accent)}
   .cta{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#06283d;font-weight:800;font-size:1rem}
   .note{text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0}
+  .retry{display:block;margin:0 auto 16px;min-height:44px;padding:10px 22px;border-radius:999px;border:1px solid #475569;background:var(--card);color:var(--text);font-weight:700;font-size:.95rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -70,107 +73,9 @@
   <div class="subtitle" id="subtitle">תוצאות טורניר</div>
   <div class="live-badge" id="live-badge"><span class="live-dot"></span><span id="live-text">שידור חי</span></div>
   <div id="content"><div class="note" id="loading">טוען תוצאות…</div></div>
-  <a class="cta" id="cta" href="./">➕ פתחו טורניר משלכם — חינם</a>
+  <a class="cta" id="cta" href="./?ref=results">➕ פתחו טורניר משלכם — חינם</a>
   <div class="note">אמריקנו · מקסיקנו · ניקוד פאדל · PadelZit</div>
 </div>
-<script>
-const SB = 'https://axrugdszycwmadbdwolx.supabase.co';
-const KEY = 'sb_publishable_DJKbYBC-m4TcUbM2D1gSlQ_WQfJW-1m';
-const POLL_MS = 5000;
-let timer = null;
-
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-function rankOrder(t){
-  const diff=i=>{let d=0;t.history.forEach(g=>{if(g.teamA.includes(i))d+=g.scoreA-g.scoreB;else if(g.teamB.includes(i))d+=g.scoreB-g.scoreA;});return d;};
-  return [...Array(t.players.length).keys()].sort((x,y)=>t.points[y]-t.points[x]||t.gamesWon[y]-t.gamesWon[x]||diff(y)-diff(x));
-}
-
-function table(t){
-  const order=rankOrder(t);
-  let h='<div class="card"><h2>🏆 דירוג</h2><table><thead><tr><th>#</th><th>שחקן</th><th class="num">נקודות</th><th class="num">נצ׳</th><th class="num">מש׳</th></tr></thead><tbody>';
-  order.forEach((i,idx)=>{h+='<tr><td><span class="rank-badge rank-'+(idx+1)+'">'+(idx+1)+'</span></td><td>'+esc(t.players[i])+'</td><td class="num pts">'+t.points[i]+'</td><td class="num">'+t.gamesWon[i]+'</td><td class="num">'+t.gamesPlayed[i]+'</td></tr>';});
-  h+='</tbody></table></div>';
-  return h;
-}
-
-function renderLive(t){
-  document.getElementById('live-badge').classList.add('on');
-  let h='';
-  if(t.next&&Array.isArray(t.next[0])){
-    const nm=i=>esc(t.players[i]);
-    const match=(m,label)=>{
-      const a=m[0].map(nm).join(' + '), b=m[1].map(nm).join(' + ');
-      return (label?'<div class="court-cap">'+label+'</div>':'')+
-        '<div class="match"><div class="team">'+a+'</div><div class="vs">נגד</div><div class="team">'+b+'</div></div>';
-    };
-    const two=t.next2&&Array.isArray(t.next2[0]);
-    const onCourt=new Set([].concat(t.next[0],t.next[1],two?t.next2[0]:[],two?t.next2[1]:[]));
-    const resting=[...Array(t.players.length).keys()].filter(i=>!onCourt.has(i)).map(i=>esc(t.players[i]));
-    h+='<div class="card"><h2>▶ '+(two?'משחקים נוכחיים':'משחק נוכחי')+'</h2>';
-    h+=match(t.next,two?'מגרש 1':'');
-    if(two) h+=match(t.next2,'מגרש 2');
-    if(resting.length) h+='<div class="resting">😴 נחים: '+resting.join(', ')+'</div>';
-    h+='</div>';
-  }
-  h+=table(t);
-  document.getElementById('content').innerHTML=h;
-}
-
-function renderFinal(t){
-  document.getElementById('live-badge').classList.remove('on');
-  const order=rankOrder(t);
-  const line=i=>t.points[i]+' נק׳ · '+t.gamesWon[i]+' נצ׳';
-  const medals=['🥇','🥈','🥉'];
-  let h='<div class="card"><h2>🎉 תוצאות הטורניר</h2>';
-  h+='<div class="podium-first"><div class="medal">🥇</div><div class="name">'+esc(t.players[order[0]])+'</div><div class="score">'+line(order[0])+'</div></div>';
-  h+='<div class="podium-rest">';
-  for(let k=1;k<3&&k<order.length;k++) h+='<div class="p"><div class="medal">'+medals[k]+'</div><div class="name">'+esc(t.players[order[k]])+'</div><div class="score">'+line(order[k])+'</div></div>';
-  h+='</div></div>';
-  h+=table(t).replace('🏆 דירוג','הטבלה הסופית');
-  document.getElementById('content').innerHTML=h;
-}
-
-function render(t){
-  const d=new Date(t.createdAt);
-  if(!isNaN(d)) document.getElementById('subtitle').textContent=d.toLocaleDateString('he-IL')+(t.format==='mexicano'?' · מקסיקנו':'');
-  if(t.finished){ renderFinal(t); if(timer){clearInterval(timer);timer=null;} }
-  else renderLive(t);
-}
-
-// Fetch one shared tournament by its exact id via the scrubbed RPC. Falls back
-// to the legacy REST read if the RPC isn't installed yet (older cloud setups).
-let rpcMissing=false;
-async function fetchShared(id){
-  if(!rpcMissing){
-    const res=await fetch(SB+'/rest/v1/rpc/get_public_tournament',{
-      method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({tid:id})});
-    if(res.ok) return res.json();          // jsonb → tournament object or null
-    if(res.status===404) rpcMissing=true;  // function not installed — use fallback
-    else throw new Error('http');
-  }
-  const res=await fetch(SB+'/rest/v1/tournaments?id=eq.'+encodeURIComponent(id)+'&select=data',{headers:{apikey:KEY}});
-  if(!res.ok) throw new Error('http');
-  const rows=await res.json();
-  return (rows.length&&rows[0].data)?rows[0].data:null;
-}
-
-async function poll(id){
-  try{
-    const data=await fetchShared(id);
-    if(!data){document.getElementById('content').innerHTML='<div class="note">התוצאות לא נמצאו או שאינן ציבוריות.</div>';if(timer){clearInterval(timer);timer=null;}return;}
-    render(data);
-  }catch(e){ /* keep last render; try again next tick */ }
-}
-
-(async()=>{
-  const id=new URLSearchParams(location.search).get('t');
-  if(!id){document.getElementById('content').innerHTML='<div class="note">קישור לא תקין.</div>';return;}
-  await poll(id);
-  timer=setInterval(()=>poll(id),POLL_MS);
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden){if(timer){clearInterval(timer);timer=null;}} else if(!timer){poll(id);timer=setInterval(()=>poll(id),POLL_MS);} });
-})();
-</script>
+<script src="r.js"></script>
 </body>
 </html>
