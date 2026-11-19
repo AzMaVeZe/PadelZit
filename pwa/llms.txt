@@ -1,0 +1,15 @@
+# PadelZit (פאדלז׳יט)
+
+> Free, Hebrew-first web app for running padel Americano and Mexicano tournaments for 4–12 players: automatic rotating pairs, one or two courts, live scoring and standings, podium, and sharing to WhatsApp or a live results link. No signup required; optional account for cloud sync and friends.
+
+- [App](https://padel.azma.app/): open in a phone browser or install (PWA / Android).
+- [Americano & Mexicano guide (Hebrew)](https://padel.azma.app/americano.html): how pairs rotate, how points are counted, how many players, odd numbers, tie-breaks.
+- [Accessibility statement (Hebrew)](https://padel.azma.app/accessibility.html)
+- [Privacy policy](https://padel.azma.app/privacy.html)
+
+## Facts
+- Formats: Americano (partners rotate to maximise different partners) and Mexicano (from round 2, 1st+4th vs 2nd+3rd by current standing).
+- Each game is played to a fixed points total (default 32); each player earns the points their team scored.
+- Ranking: total points, then wins, then point difference; equal players share a place.
+- 4 players cycle through all 3 pairings; 5–7 players: the 4 with fewest games play; 8–12 players: two courts in parallel.
+- Price: free. Languages: Hebrew (default) and English.
