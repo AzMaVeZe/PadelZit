@@ -24,6 +24,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PadelZit">
+<link rel="canonical" href="https://padel.azma.app/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "פאדלז׳יט — PadelZit",
+  "alternateName": "PadelZit",
+  "url": "https://padel.azma.app/",
+  "description": "ניהול טורניר פאדל אמריקנו ומקסיקנו ל-4–12 שחקנים: זוגות מתחלפים אוטומטית, עד שני מגרשים, ניקוד ודירוג חי, פודיום ושיתוף בוואטסאפ. חינם, ללא הרשמה.",
+  "applicationCategory": "SportsApplication",
+  "operatingSystem": "Web, Android",
+  "inLanguage": ["he", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "ILS" },
+  "image": "https://padel.azma.app/og.png",
+  "publisher": { "@type": "Organization", "name": "PadelZit — פאדלז׳יט", "url": "https://padel.azma.app/" }
+}
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -195,6 +213,11 @@
   .save-ok { animation: saveOk .5s ease; }
   @keyframes saveOk { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); } 100% { box-shadow: 0 0 0 14px rgba(52,211,153,0); } }
 
+  .skip-link { position: absolute; inset-inline-start: 8px; top: -60px; z-index: 100; background: var(--accent); color: #06283d;
+    font-weight: 800; padding: 10px 16px; border-radius: 10px; text-decoration: none; }
+  .skip-link:focus { top: 8px; }
+  main:focus { outline: none; }
+  .field-label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -263,7 +286,7 @@
     width: 100%;
     padding: 10px 12px;
     border-radius: 10px;
-    border: 1px solid #334155;
+    border: 1px solid #6b7a90;
     background: var(--card-2);
     color: var(--text);
     font-size: 1rem;
@@ -352,7 +375,7 @@
   .stepper input { flex: 1; min-width: 0; }
   .stepper .step { flex: 0 0 auto; width: 44px; min-height: 48px; padding: 0;
     font-size: 1.35rem; font-weight: 800; border-radius: 10px;
-    background: var(--card-2); color: var(--text); }
+    background: var(--card-2); color: var(--text); border: 1px solid #6b7a90; }
   .score-row .dash { text-align: center; color: var(--muted); font-weight: 800; }
   .hint { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
   .target-row {
@@ -543,7 +566,7 @@
     font-weight: 700;
     margin-bottom: 8px;
   }
-  .oauth-btn.facebook { background: #1877f2; color: #fff; }
+  .oauth-btn.facebook { background: #166fe5; color: #fff; }
   .oauth-btn.apple { background: #000; color: #fff; }
   .oauth-btn .g { display: inline-flex; }
 
@@ -582,6 +605,10 @@
     text-align: center;
   }
   #toast.show { opacity: 1; }
+  .about-card summary { cursor: pointer; font-weight: 800; color: var(--accent); font-size: 1.05rem; min-height: 32px; }
+  .about-card p, .about-card li { color: var(--text); line-height: 1.65; margin-top: 8px; }
+  .about-card ol { padding-inline-start: 22px; }
+  .about-card a, .app-footer a { color: var(--accent); }
   #toast.has-action { pointer-events: auto; display: flex; align-items: center; gap: 12px; }
   #toast .toast-action { width: auto; min-height: 36px; margin: 0; padding: 4px 14px; border-radius: 999px;
     border: 1px solid #7dd3fc; background: transparent; color: #e0f2fe; font-weight: 800; font-size: 0.9rem; }
@@ -625,7 +652,9 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content" id="skip-link">דלג לתוכן הראשי</a>
 <div class="container">
+  <header>
   <div class="topbar">
     <button type="button" class="nav-home-btn hidden" id="nav-home-btn" onclick="gotoHome()" aria-label="">
       <span aria-hidden="true">🏠</span><span class="nav-home-label" id="nav-home-label"></span>
@@ -662,7 +691,9 @@
   </div>
   <h1 id="brand-h1"><span class="title-ball" aria-hidden="true"></span><span id="app-title">פאדלז׳יט</span></h1>
   <div class="subtitle" id="subtitle"></div>
+  </header>
 
+  <main id="main-content" tabindex="-1">
   <!-- HOME SCREEN -->
   <div id="home-screen" class="hidden">
     <button onclick="gotoSetup()" id="new-tour-btn"></button>
@@ -729,8 +760,24 @@
         <tbody id="alltime-body"></tbody>
       </table>
     </div>
+    <details class="card about-card" id="about-card">
+      <summary id="about-summary">מה זה פאדלז׳יט ואיך זה עובד?</summary>
+      <div id="about-body">
+        <p>פאדלז׳יט מנהלת טורניר פאדל בפורמט <strong>אמריקנו</strong> או <strong>מקסיקנו</strong> ל-4 עד 12 שחקנים — חינם, בעברית ובלי הרשמה.</p>
+        <ol>
+          <li>מזינים את שמות השחקנים ובוחרים פורמט ויעד נקודות (למשל 32).</li>
+          <li>האפליקציה קובעת מי משחק עם מי; מ-8 שחקנים משחקים בשני מגרשים במקביל.</li>
+          <li>אחרי כל משחק מזינים תוצאה של זוג אחד — השנייה מתמלאת לבד, והטבלה מתעדכנת.</li>
+          <li>בסוף: פודיום ושיתוף בוואטסאפ או בקישור חי לכל השחקנים.</li>
+        </ol>
+        <p><strong>אמריקנו:</strong> הזוגות מתחלפים כדי שכל אחד ישחק עם כמה שיותר שותפים, וכל שחקן מקבל את הנקודות של הזוג שלו. <strong>מקסיקנו:</strong> מהסבב השני הזוגות נקבעים לפי הדירוג (ראשון ורביעי נגד שני ושלישי), כך שהמשחקים צמודים יותר.</p>
+        <p><a href="americano.html">המדריך המלא לטורניר אמריקנו ומקסיקנו ←</a></p>
+      </div>
+    </details>
     <div class="app-footer">
       <a id="privacy-link" href="privacy.html" target="_blank" rel="noopener"></a>
+      <span aria-hidden="true"> · </span>
+      <a id="a11y-link" href="accessibility.html" target="_blank" rel="noopener">הצהרת נגישות</a>
     </div>
   </div>
 
@@ -739,8 +786,8 @@
     <div class="card">
       <h2 id="setup-title"></h2>
       <form id="setup-form">
-        <label id="lcount"></label>
-        <div class="count-row" id="count-row"></div>
+        <div class="field-label" id="lcount"></div>
+        <div class="count-row" id="count-row" role="group" aria-labelledby="lcount"></div>
         <div id="name-fields"></div>
         <div class="hint" id="roster-hint" style="text-align:start"></div>
         <div id="dir-search" class="hidden">
@@ -752,11 +799,11 @@
           <div class="hint" id="dir-result" style="text-align:start" aria-live="polite"></div>
         </div>
         <datalist id="roster-list"></datalist>
-        <label id="lformat"></label>
-        <div class="count-row" id="format-row"></div>
+        <div class="field-label" id="lformat"></div>
+        <div class="count-row" id="format-row" role="group" aria-labelledby="lformat"></div>
         <div class="hint" id="fmt-hint" class="hidden"></div>
         <label for="target" id="ltarget"></label>
-        <div class="count-row" id="target-chips"></div>
+        <div class="count-row" id="target-chips" role="group" aria-labelledby="ltarget"></div>
         <input type="number" id="target" value="32" min="2" max="500" inputmode="numeric" enterkeyhint="go" aria-required="true" aria-describedby="setup-error">
         <div class="hint" id="target-hint" style="text-align:start"></div>
         <div class="error-msg" id="setup-error" role="alert"></div>
@@ -939,6 +986,7 @@
     </div>
     <button class="secondary" onclick="gotoHome()" id="friends-back-btn"></button>
   </div>
+  </main>
 </div>
 <div id="update-banner" class="hidden" role="alert">
   <span id="update-text"></span>
@@ -1078,6 +1126,10 @@ const STR = {
     cloudErrExists: 'החשבון כבר קיים — נסו להתחבר.',
     cloudErrNet: 'אין חיבור לשרת הענן. בדקו את החיבור לאינטרנט ונסו שוב.',
     undo: 'בטל',
+    stepUp: 'הוספת נקודה: {n}',
+    stepDown: 'הורדת נקודה: {n}',
+    skipLink: 'דלג לתוכן הראשי',
+    a11yLink: 'הצהרת נגישות',
     undone: 'השמירה בוטלה',
     cloudErrTable: 'שרת הענן עדיין לא הוגדר — צריך להריץ את סקריפט ההקמה (ראו הוראות).',
     cloudSignupOk: 'החשבון נוצר ✓',
@@ -1283,6 +1335,18 @@ const STR = {
     cloudErrExists: 'Account already exists — try signing in.',
     cloudErrNet: 'Cannot reach the cloud server. Check your connection and try again.',
     undo: 'Undo',
+    stepUp: 'Add a point: {n}',
+    stepDown: 'Remove a point: {n}',
+    skipLink: 'Skip to main content',
+    aboutSummary: 'What is PadelZit and how does it work?',
+    aboutHtml: '<p>PadelZit runs a padel <strong>Americano</strong> or <strong>Mexicano</strong> tournament for 4 to 12 players — free, no signup.</p>' +
+      '<ol><li>Enter the players, pick a format and a points target (e.g. 32).</li>' +
+      '<li>The app decides who plays with whom; from 8 players, two courts play in parallel.</li>' +
+      '<li>After each game type one team\'s score — the other fills in and the table updates.</li>' +
+      '<li>At the end: a podium, and sharing to WhatsApp or a live link for everyone.</li></ol>' +
+      '<p><strong>Americano:</strong> partners rotate so everyone plays with as many partners as possible, and each player earns their team\'s points. <strong>Mexicano:</strong> from round 2 pairs follow the standings (1st+4th vs 2nd+3rd) for closer games.</p>' +
+      '<p><a href="americano.html">Full Americano &amp; Mexicano guide (Hebrew) →</a></p>',
+    a11yLink: 'Accessibility statement',
     undone: 'Save undone',
     cloudErrTable: 'The cloud server is not set up yet — run the setup script (see instructions).',
     cloudSignupOk: 'Account created ✓',
@@ -1827,11 +1891,19 @@ const FACEBOOK_F_SVG = '<svg class="g" width="18" height="18" viewBox="0 0 24 24
   '<circle cx="12" cy="12" r="12" fill="#fff"/>' +
   '<path fill="#1877F2" d="M12 0C5.37 0 0 5.37 0 12c0 5.99 4.39 10.95 10.13 11.85v-8.38H7.08V12h3.05V9.36c0-3.01 1.79-4.67 4.53-4.67 1.31 0 2.69.23 2.69.23v2.95h-1.52c-1.49 0-1.96.93-1.96 1.88V12h3.33l-.53 3.47h-2.8v8.38C19.61 22.95 24 17.99 24 12c0-6.63-5.37-12-12-12z"/></svg>';
 
+let ABOUT_HE = null;
 function applyLang() {
   document.documentElement.lang = STR[lang].lang;
   document.documentElement.dir = STR[lang].dir;
   const set = (id, key) => { document.getElementById(id).textContent = t(key); };
   set('lang-btn', 'langBtn');
+  set('a11y-link', 'a11yLink');
+  set('skip-link', 'skipLink');
+  // About card: Hebrew is the static HTML (what crawlers read); English swaps in.
+  const aboutBody = document.getElementById('about-body');
+  if (ABOUT_HE === null) ABOUT_HE = { summary: document.getElementById('about-summary').textContent, body: aboutBody.innerHTML };
+  document.getElementById('about-summary').textContent = lang === 'he' ? ABOUT_HE.summary : t('aboutSummary');
+  aboutBody.innerHTML = lang === 'he' ? ABOUT_HE.body : t('aboutHtml');
   set('app-title', 'appTitle');
   set('subtitle', 'subtitle');
   set('new-tour-btn', 'newTour');
@@ -2053,6 +2125,7 @@ function renderSetup() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'count-chip' + (n === setupCount ? ' sel' : '');
+    b.setAttribute('aria-pressed', n === setupCount ? 'true' : 'false');
     b.textContent = n;
     b.onclick = () => selectCount(n);
     row.appendChild(b);
@@ -2063,6 +2136,7 @@ function renderSetup() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'count-chip' + (f === setupFormat ? ' sel' : '');
+    b.setAttribute('aria-pressed', f === setupFormat ? 'true' : 'false');
     b.textContent = label;
     b.onclick = () => selectFormat(f);
     fmtRow.appendChild(b);
@@ -2075,6 +2149,7 @@ function renderSetup() {
     b.type = 'button';
     const cur = parseScore(document.getElementById('target').value);
     b.className = 'count-chip' + (cur === v ? ' sel' : '');
+    b.setAttribute('aria-pressed', cur === v ? 'true' : 'false');
     b.textContent = v;
     b.onclick = () => { document.getElementById('target').value = v; renderSetup(); };
     tgtRow.appendChild(b);
@@ -3770,6 +3845,15 @@ function renderHistory(tour) {
   });
 }
 
+// "+" / "−" buttons announce which team they change, not just "+1".
+function labelSteppers(inputId, team) {
+  const steps = document.getElementById(inputId).parentElement.querySelectorAll('.step');
+  if (steps.length === 2) {
+    steps[0].setAttribute('aria-label', t('stepUp', team));
+    steps[1].setAttribute('aria-label', t('stepDown', team));
+  }
+}
+
 function renderGame(tour) {
   const n = tour.history.length;
   const nPlayers = tour.players.length;
@@ -3790,6 +3874,8 @@ function renderGame(tour) {
   document.getElementById('teamB-names').innerHTML = teamLabel(tour, teamB);
   document.getElementById('scoreA').setAttribute('aria-label', teamLabelInline(tour, teamA));
   document.getElementById('scoreB').setAttribute('aria-label', teamLabelInline(tour, teamB));
+  labelSteppers('scoreA', teamLabelInline(tour, teamA));
+  labelSteppers('scoreB', teamLabelInline(tour, teamB));
   // Court 2 (8+ players): show the parallel match with its own score inputs.
   const court2 = document.getElementById('court2-block');
   document.getElementById('court1-label').classList.toggle('hidden', !tour.next2);
@@ -3801,6 +3887,8 @@ function renderGame(tour) {
     document.getElementById('teamB2-names').innerHTML = teamLabel(tour, teamB2);
     document.getElementById('scoreA2').setAttribute('aria-label', t('court2') + ' — ' + teamLabelInline(tour, teamA2));
     document.getElementById('scoreB2').setAttribute('aria-label', t('court2') + ' — ' + teamLabelInline(tour, teamB2));
+    labelSteppers('scoreA2', t('court2') + ' — ' + teamLabelInline(tour, teamA2));
+    labelSteppers('scoreB2', t('court2') + ' — ' + teamLabelInline(tour, teamB2));
     teamA2.forEach(i => onCourt.add(i)); teamB2.forEach(i => onCourt.add(i));
   }
   const restEl = document.getElementById('resting-label');
@@ -3870,8 +3958,10 @@ function renderPodium(tour) {
   }
 }
 
+let aboutAutoOpened = false;
 function renderHome() {
   updateInstallUI();
+  if (!aboutAutoOpened) { aboutAutoOpened = true; document.getElementById('about-card').open = db.tournaments.length === 0; }
   renderCloud();
   const inviteNote = document.getElementById('invite-pending-note');
   const showInviteNote = !!pendingInvite && !session;

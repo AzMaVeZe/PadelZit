@@ -29,6 +29,8 @@ jobs:
           cp r.html _site/r.html
           cp r.js _site/r.js
           cp privacy.html _site/privacy.html
+          cp americano.html _site/americano.html
+          cp accessibility.html _site/accessibility.html
           cp og.png _site/og.png
           cp CNAME _site/CNAME
           cp -r pwa/. _site/

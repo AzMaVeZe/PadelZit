@@ -1,0 +1,8 @@
+# PadelZit — padel.azma.app
+# Everything public may be crawled, including by AI search crawlers.
+# Individual tournament results (r.html) carry a noindex tag instead of a
+# Disallow here, so crawlers can read that tag.
+User-agent: *
+Allow: /
+
+Sitemap: https://padel.azma.app/sitemap.xml
