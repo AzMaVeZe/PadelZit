@@ -67,7 +67,7 @@ async function setNickname(p, nick) {
 
 (async () => {
   const browser = await chromium.launch({
-    executablePath: process.env.CHROME_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+    ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}),
   });
 
   // ---- 1024x500 feature graphic (static HTML, no app needed) ----

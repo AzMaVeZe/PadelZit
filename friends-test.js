@@ -42,7 +42,7 @@ async function mkctx(browser) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+  const browser = await chromium.launch();
 
   // ---- Part 1: invite-link flow (guest opens link, signs up, accepts) ----
   const ctxA = await mkctx(browser);

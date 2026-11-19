@@ -4,7 +4,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const MOCK = 'http://localhost:9021';
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+  const browser = await chromium.launch();
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   await ctx.addInitScript(() => {
     localStorage.setItem('padelzit-cloud-url', 'http://localhost:9021');

@@ -27,10 +27,14 @@ jobs:
           mkdir _site
           cp index.html _site/index.html
           cp r.html _site/r.html
+          cp r.js _site/r.js
           cp privacy.html _site/privacy.html
           cp og.png _site/og.png
           cp CNAME _site/CNAME
           cp -r pwa/. _site/
+          # Stamp the service-worker cache with this commit so every deploy
+          # ships a fresh offline copy (and triggers the in-app update banner).
+          sed -i "s/__BUILD__/${GITHUB_SHA::8}/" _site/sw.js
       - uses: actions/configure-pages@v5
         with:
           enablement: true

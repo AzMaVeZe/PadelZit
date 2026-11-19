@@ -1,6 +1,8 @@
 // PadelZit service worker — caches the app shell for offline use.
 // Cross-origin requests (e.g. Supabase cloud sync) are never intercepted.
-const CACHE = 'padelzit-v11';
+// The deploy workflow replaces __BUILD__ with the commit SHA, so every release
+// gets a fresh cache name (and a byte-different worker the browser notices).
+const CACHE = 'padelzit-v12-__BUILD__';
 const SHELL = [
   './',
   './index.html',
@@ -14,7 +16,8 @@ const SHELL = [
 self.addEventListener('install', e => {
   // Don't skipWaiting automatically — the page shows an "update ready" banner
   // and asks this worker to activate only when the user taps Refresh.
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
+  // cache:'reload' bypasses the HTTP cache so a new worker never precaches a stale page.
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
 });
 
 self.addEventListener('message', e => {
@@ -35,11 +38,23 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
   // App shell / navigations: serve fresh when online, fall back to cache offline.
+  // Only the app page itself refreshes the cached shell: r.html, privacy.html
+  // or an error page must never be stored as ./index.html. The clone is taken
+  // synchronously, before the body is handed to the page.
   if (req.mode === 'navigate') {
+    const path = new URL(req.url).pathname;
+    const isShell = /\/(index\.html)?$/.test(path);
     e.respondWith(
       fetch(req)
-        .then(res => { caches.open(CACHE).then(c => c.put('./index.html', res.clone())); return res; })
-        .catch(() => caches.match('./index.html'))
+        .then(res => {
+          if (isShell && res.ok && res.type === 'basic') {
+            const copy = res.clone();
+            e.waitUntil(caches.open(CACHE).then(c => c.put('./index.html', copy)));
+          }
+          return res;
+        })
+        .catch(() => caches.match(isShell ? './index.html' : req)
+          .then(hit => hit || caches.match('./index.html')))
     );
     return;
   }

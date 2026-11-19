@@ -32,6 +32,23 @@ python3 -m http.server 8000
 
 Works well on a phone at the court.
 
+## Tests
+
+End-to-end tests drive the app in Chromium (Playwright) against a local mock
+of Supabase (`mock-supabase.js`). Run them all, each with a fresh mock:
+
+```sh
+./scripts/run-tests.sh
+```
+
+They also run on every pull request (`.github/workflows/tests.yml`).
+
+## Cloud schema changes
+
+`cloud/setup.sql` builds a fresh Supabase project from scratch. Changes to an
+existing project go in `cloud/migrations/` (dated, idempotent) and are folded
+into `setup.sql` as well.
+
 ## Install as an app (PWA)
 
 The hosted site is a Progressive Web App — no store, no signup, works on Android
